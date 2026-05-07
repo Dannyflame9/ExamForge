@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ExamForge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-grid">
+        <aside class="sidebar">
+            <h2>⚙️ Admin Panel</h2>
+            <nav>
+                <div class="nav-item active" onclick="showAdminSection('students')">👥 Students</div>
+                <div class="nav-item" onclick="showAdminSection('tests')">📝 Create Test</div>
+                <div class="nav-item" onclick="showAdminSection('performance')">📊 Performance</div>
+                <div class="nav-item" onclick="showAdminSection('backup')">💾 Backup</div>
+                <div class="nav-item" onclick="showAdminSection('sync')">🔄 Sync</div>
+                <div class="nav-item" onclick="showAdminSection('schools')">🏫 Schools</div>
+                <div class="nav-item" onclick="showAdminSection('profile')">👤 My Profile</div>
+                <div class="nav-item" onclick="logout()">🚪 Logout</div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div id="adminHeaderPhoto" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <span style="font-size: 24px;">🛡️</span>
+                    </div>
+                    <div>
+                        <h2 id="adminHeaderName">Welcome, Super Admin</h2>
+                        <p style="color: var(--text-light);">Manage tests and monitor student performance</p>
+                    </div>
+                </div>
+                <div style="position: absolute; top: 20px; right: 20px;">
+                    <button onclick="toggleDarkMode()" class="dark-toggle" id="darkToggle">🌙</button>
+                </div>
+                <div>
+                    <h2>Admin Dashboard</h2>
+                    <p style="color: var(--text-light);">Manage tests and monitor student performance</p>
+                </div>
+            </div>
+
+            <!-- Students Section -->
+            <div id="students-section">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Search Name</label>
+                        <input type="text" id="searchName" placeholder="Search by name..." oninput="filterStudents()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Session</label>
+                        <select id="filterSession" onchange="filterStudents()">
+                            <option value="">All Sessions</option>
+                            <option value="2024/2025">2024/2025</option>
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="2026/2027">2026/2027</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select id="filterClass" onchange="filterStudents()">
+                            <option value="">All Classes</option>
+                            <option value="SS1">SS1</option>
+                            <option value="SS2">SS2</option>
+                            <option value="SS3">SS3</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Subject</label>
+                        <select id="filterSubject" onchange="filterStudents()">
+                            <option value="">All Subjects</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Economics">Economics</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: end;">
+                        <button onclick="deleteAllStudents()" class="btn btn-danger" style="width: auto; padding: 12px 20px; font-size: 14px;">
+                            🗑️ Delete All Students
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Session</th>
+                                <th>Term</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Password</th>
+                                <th>Tests Done</th>
+                                <th>Avg Score</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Create Test Section -->
+            <div id="tests-section" class="hidden">
+                <div class="create-form">
+                    <h3 class="section-title">Create New Test / Exam</h3>
+                    <div id="editBannerContainer"></div>
+                    <form id="createTestForm" onsubmit="createTest(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Test Type *</label>
+                                <select id="testType" required onchange="handleTestTypeChange()">
+                                    <option value="">Select Type</option>
+                                    <option value="weekly">Weekly Test</option>
+                                    <option value="midterm">Mid Term Test (Week 7)</option>
+                                    <option value="exam">Final Examination</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Week Number *</label>
+                                <select id="testWeek" required disabled>
+                                    <option value="">Select Week</option>
+                                    <option value="1">Week 1</option>
+                                    <option value="2">Week 2</option>
+                                    <option value="3">Week 3</option>
+                                    <option value="4">Week 4</option>
+                                    <option value="5">Week 5</option>
+                                    <option value="6">Week 6</option>
+                                    <option value="7">Week 7 (Mid Term)</option>
+                                    <option value="8">Week 8</option>
+                                    <option value="9">Week 9</option>
+                                    <option value="10">Week 10</option>
+                                    <option value="11">Final Exam</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subject *</label>
+                                <select id="testSubject" required>
+                                    <option value="">Select Subject</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="English">English</option>
+                                    <option value="Economics">Economics</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Class *</label>
+                                <select id="testClass" required>
+                                    <option value="">Select Class</option>
+                                    <option value="SS1">SS1</option>
+                                    <option value="SS2">SS2</option>
+                                    <option value="SS3">SS3</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Session *</label>
+                                <select id="testSession" required>
+                                    <option value="">Select Session</option>
+                                    <option value="2024/2025">2024/2025</option>
+                                    <option value="2025/2026">2025/2026</option>
+                                    <option value="2026/2027">2026/2027</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Term *</label>
+                                <select id="testTerm" required>
+                                    <option value="">Select Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date *</label>
+                                <input type="date" id="testDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Time *</label>
+                                <input type="time" id="testTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Duration (minutes)</label>
+                                <input type="number" id="testDuration" value="10" min="1" readonly style="background: #e2e8f0; cursor: not-allowed;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Number of Questions</label>
+                                <input type="number" id="testQuestionCount" value="10" min="1" readonly style="background: #e2e8f0; cursor: not-allowed;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0; display: flex; align-items: end;">
+                                <p id="testTypeInfo" style="color: var(--text-light); font-size: 14px;">Select a test type to see details</p>
+                            </div>
+                        </div>
+
+                        <!-- Question Bank -->
+                        <div id="questionBankArea" class="hidden" style="margin-bottom: 24px;">
+                            <div class="create-form" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b;">
+                                <h4 style="margin-bottom: 8px; color: #92400e;">📚 Question Bank</h4>
+                                <p style="color: #78350f; margin-bottom: 16px; font-size: 14px;">
+                                    Select questions from previous tests to reuse. 
+                                    <strong>Selected: <span id="bankSelectedCount">0</span></strong>
+                                </p>
+                                
+                                <div class="form-row" style="margin-bottom: 16px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Filter by Subject</label>
+                                        <select id="bankFilterSubject" onchange="loadQuestionBank()">
+                                            <option value="">Same as current</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Filter by Class</label>
+                                        <select id="bankFilterClass" onchange="loadQuestionBank()">
+                                            <option value="">Same as current</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>Filter by Type</label>
+                                        <select id="bankFilterType" onchange="loadQuestionBank()">
+                                            <option value="all">All Previous Tests</option>
+                                            <option value="weekly">Weekly Tests Only</option>
+                                            <option value="midterm">Mid Term Only</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="bankQuestionsList" style="max-height: 350px; overflow-y: auto; background: white; border-radius: 8px; padding: 12px;">
+                                    <!-- Questions loaded here -->
+                                </div>
+
+                                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                    <button type="button" onclick="addSelectedBankQuestions()" class="btn btn-primary" style="flex: 1;">
+                                        ➕ Add Selected to Test
+                                    </button>
+                                    <button type="button" onclick="clearBankSelection()" class="btn btn-secondary" style="width: auto;">
+                                        Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="questionsContainer">
+                            <h4 style="margin: 20px 0 15px;">Questions <span id="questionCounter" style="color: var(--text-light); font-size: 14px;">(0 added)</span></h4>
+                            <div id="questionsList"></div>
+                            <button type="button" class="btn btn-secondary" onclick="addQuestion()" style="width: auto; margin-top: 15px;">
+                                + Add New Question
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 30px;">Create Test</button>
+                    </form>
+                </div>
+
+                <h3 class="section-title">Existing Tests</h3>
+                <div id="existingTests" class="tests-grid"></div>
+            </div>
+
+            <!-- Performance Section -->
+            <div id="performance-section" class="hidden">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Subject</label>
+                        <select id="perfSubject" onchange="loadPerformance()">
+                            <option value="">All Subjects</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Economics">Economics</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select id="perfClass" onchange="loadPerformance()">
+                            <option value="">All Classes</option>
+                            <option value="SS1">SS1</option>
+                            <option value="SS2">SS2</option>
+                            <option value="SS3">SS3</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Test Type</label>
+                        <select id="perfType" onchange="loadPerformance()">
+                            <option value="">All Types</option>
+                            <option value="weekly">Weekly Tests</option>
+                            <option value="midterm">Mid Term</option>
+                            <option value="exam">Examination</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Test</th>
+                                <th>Score</th>
+                                <th>Performance</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performanceTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Backup Section -->
+            <div id="backup-section" class="hidden">
+                <h3 class="section-title">💾 Data Backup & Restore</h3>
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Export Data</h4>
+                    <p style="color: var(--text-light); margin-bottom: 20px; font-size: 14px;">
+                        Download all your tests, students, and results as a backup file. 
+                        Keep this file safe — you can restore everything from it later.
+                    </p>
+                    <button onclick="exportData()" class="btn btn-primary" style="width: auto; padding: 14px 32px;">
+                        📥 Export All Data
+                    </button>
+                </div>
+
+                <div class="create-form">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Import Data</h4>
+                    <p style="color: var(--text-light); margin-bottom: 20px; font-size: 14px;">
+                        Restore your data from a previously exported backup file. 
+                        <strong style="color: var(--danger);">Warning: This will replace all current data!</strong>
+                    </p>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <input type="file" id="importFile" accept=".json" onchange="handleFileSelect(event)" style="padding: 12px; border: 2px dashed var(--border); border-radius: 12px; width: 100%;">
+                    </div>
+                    <button onclick="importData()" class="btn btn-warning" style="width: auto; padding: 14px 32px;">
+                        📤 Import Data
+                    </button>
+                    <div id="importPreview" class="hidden" style="margin-top: 20px; padding: 20px; background: var(--bg); border-radius: 12px;">
+                        <h5 style="margin-bottom: 12px;">Preview:</h5>
+                        <div id="importPreviewContent"></div>
+                        <button onclick="confirmImport()" class="btn btn-success" style="margin-top: 16px; width: auto;">
+                            ✅ Confirm Import
+                        </button>
+                        <button onclick="cancelImport()" class="btn btn-secondary" style="margin-top: 16px; width: auto; margin-left: 10px;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Schools Management -->
+            <div id="schools-section" class="hidden">
+                <h3 class="section-title">🏫 School Management</h3>
+                
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Register New School</h4>
+                    <form id="schoolForm" onsubmit="registerSchool(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>School Name *</label>
+                                <input type="text" id="schoolName" required placeholder="e.g., Government College" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>School Code *</label>
+                                <input type="text" id="schoolCode" required placeholder="e.g., GC2025" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; text-transform: uppercase;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: auto;">➕ Register School</button>
+                    </form>
+                </div>
+
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Register School Owner</h4>
+                    <form id="ownerForm" onsubmit="registerOwner(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Owner Name *</label>
+                                <input type="text" id="ownerName" required placeholder="e.g., Mr. Johnson" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Username *</label>
+                                <input type="text" id="ownerUsername" required placeholder="e.g., gcowner" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Password *</label>
+                                <input type="text" id="ownerPassword" required placeholder="Auto-generated if blank" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Assign School *</label>
+                                <select id="ownerSchool" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                                    <option value="">Select School</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: auto;">➕ Register Owner</button>
+                    </form>
+                </div>
+
+                <h4 class="section-title">Registered Schools</h4>
+                <div class="table-container" style="margin-bottom: 24px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Code</th><th>Students</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="schoolsTable"></tbody>
+                    </table>
+                </div>
+
+                <h4 class="section-title">Registered Owners</h4>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Name</th><th>Username</th><th>School</th><th>Password</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="ownersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sync Section -->
+            <div id="sync-section" class="hidden">
+                <h3 class="section-title">🔄 Sync & Share Questions</h3>
+                
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Generate Sync Code</h4>
+                    <p style="color: var(--text-light); margin-bottom: 16px;">
+                        Create a code that schools can use to download your latest questions instantly.
+                        No file transfer needed!
+                    </p>
+                    <button onclick="createSyncCode()" class="btn btn-primary" style="width: auto; padding: 14px 32px;">
+                        🔑 Generate New Sync Code
+                    </button>
+                    <div id="syncCodeDisplay" style="margin-top: 20px;"></div>
+                </div>
+
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Export Data File</h4>
+                    <p style="color: var(--text-light); margin-bottom: 16px;">
+                        Traditional method: Download a file and send to schools.
+                    </p>
+                    <button onclick="exportData()" class="btn btn-primary" style="width: auto; padding: 14px 32px;">
+                        📥 Export All Data
+                    </button>
+                </div>
+
+                <div class="create-form">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">All Schools Overview</h4>
+                    <div id="allSchoolsOverview"></div>
+                </div>
+            </div>
+
+            <!-- Admin Profile Section -->
+            <div id="profile-section" class="hidden">
+                <h3 class="section-title">👤 Super Admin Profile</h3>
+                
+                <div class="create-form" style="max-width: 600px;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div class="photo-upload" onclick="document.getElementById('adminPhotoInput').click()" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; overflow: hidden;">
+                            <div class="photo-preview" id="adminPhotoPreview" style="width: 100%; height: 100%; border-radius: 50%;">
+                                <span class="photo-placeholder" style="font-size: 60px;">🛡️</span>
+                            </div>
+                            <input type="file" id="adminPhotoInput" accept="image/*" style="display: none;" onchange="handleAdminPhotoUpload(event)">
+                        </div>
+                        <p style="color: var(--text-light); font-size: 13px; margin-top: 8px;">Tap to change photo</p>
+                    </div>
+
+                    <form id="adminProfileForm" onsubmit="saveAdminProfile(event)">
+                        <div class="form-group">
+                            <label>Display Name</label>
+                            <input type="text" id="adminDisplayName" required placeholder="Your name" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="adminEditUsername" required placeholder="Username" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+
+                        <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin: 24px 0;">
+                            <h4 style="margin-bottom: 16px; color: var(--primary);">🔐 Change Password</h4>
+                            
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="adminCurrentPassword" required placeholder="Enter current password" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>New Password (leave blank to keep current)</labelleave blank to keep current)</label>
+                                <input type="password" id="adminNewPassword" placeholder="Enter new password" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="adminConfirmPassword" placeholder="Confirm new password" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+<script src="common.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
