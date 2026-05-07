@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - ExamForge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="exam-layout">
+        <!-- Left Panel: Question Area -->
+        <div class="exam-main">
+            <!-- Header -->
+            <div class="exam-header">
+                <div class="exam-info">
+                    <h3 id="testTitle">Loading...</h3>
+                    <p id="testMeta">Loading...</p>
+                </div>
+                <div class="timer-wrapper">
+                    <div class="timer-ring">
+                        <svg class="timer-svg" viewBox="0 0 100 100">
+                            <circle class="timer-track" cx="50" cy="50" r="45"/>
+                            <circle class="timer-progress" id="timerProgress" cx="50" cy="50" r="45"/>
+                        </svg>
+                        <div class="timer-text">
+                            <span id="timer" class="timer-digits">00:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="question-card">
+                <div class="question-badge">
+                    <span class="q-number">Question <span id="currentQNum">1</span></span>
+                    <span class="q-total">of <span id="totalQNum">10</span></span>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+
+                <div class="options-area" id="optionsArea">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="exam-nav">
+                <button id="prevBtn" class="nav-btn prev-btn" onclick="prevQuestion()">
+                    <span>←</span> Previous
+                </button>
+                
+                <div class="nav-hint">
+                    <span id="answerStatus">Not answered</span>
+                </div>
+                
+                <button id="nextBtn" class="nav-btn next-btn" onclick="nextQuestion()">
+                    Next <span>→</span>
+                </button>
+                
+                <button id="submitBtn" class="nav-btn submit-btn hidden" onclick="confirmSubmit()">
+                    Submit Test ✓
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Question Palette -->
+        <div class="exam-sidebar">
+            <div class="palette-card">
+                <h4>📋 Question Palette</h4>
+                <p class="palette-hint">Click to jump to any question</p>
+                
+                <div class="palette-grid" id="paletteGrid">
+                    <!-- Palette buttons injected here -->
+                </div>
+
+                <div class="palette-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot current"></span>
+                        <span>Current</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot answered"></span>
+                        <span>Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot not-answered"></span>
+                        <span>Not Answered</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="palette-card summary-card">
+                <h4>📊 Summary</h4>
+                <div class="summary-row">
+                    <span>Answered</span>
+                    <strong id="summaryAnswered">0</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Not Answered</span>
+                    <strong id="summaryNotAnswered">0</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Total</span>
+                    <strong id="summaryTotal">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Confirmation Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; padding: 32px;">
+            <div style="font-size: 48px; text-align: center; margin-bottom: 16px;">⚠️</div>
+            <h3 style="text-align: center; margin-bottom: 12px;">Submit Test?</h3>
+            <p style="text-align: center; color: var(--text-light); margin-bottom: 24px;">
+                You have answered <strong id="modalAnswered">0</strong> out of <strong id="modalTotal">0</strong> questions.
+                <span id="modalWarning" style="color: var(--danger); display: block; margin-top: 8px;"></span>
+            </p>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeSubmitModal()" class="btn btn-secondary" style="flex: 1;">Go Back</button>
+                <button onclick="submitTest()" class="btn btn-primary" style="flex: 1;">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="toggleDarkMode()" class="dark-toggle" id="darkToggle" style="position: fixed; top: 20px; right: 90px; z-index: 50;">🌙</button>
+
+    <!-- Scientific Calculator Modal -->
+        <div class="calc-modal" id="calc-modal">
+            <div class="calc-container">
+                <div class="calc-header">
+                    <span>🧮 Scientific Calculator</span>
+                    <button class="calc-close" onclick="toggleCalculator()">✕</button>
+                </div>
+                <div class="calc-display">
+                    <div class="calc-history" id="calc-history"></div>
+                    <div class="calc-input" id="calc-input">0</div>
+                </div>
+                <div class="calc-buttons">
+                    <!-- Row 1: Functions -->
+                    <button class="calc-btn calc-fn" onclick="calcFunction('sin')">sin</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('cos')">cos</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('tan')">tan</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('log')">log</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('ln')">ln</button>
+                    
+                    <!-- Row 2: More functions -->
+                    <button class="calc-btn calc-fn" onclick="calcFunction('sqrt')">√</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('cbrt')">∛</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('square')">x²</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('cube')">x³</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('inv')">1/x</button>
+                    
+                    <!-- Row 3: Numbers & basic -->
+                    <button class="calc-btn" onclick="calcAppend('7')">7</button>
+                    <button class="calc-btn" onclick="calcAppend('8')">8</button>
+                    <button class="calc-btn" onclick="calcAppend('9')">9</button>
+                    <button class="calc-btn calc-op" onclick="calcOperator('/')">÷</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('abs')">|x|</button>
+                    
+                    <!-- Row 4 -->
+                    <button class="calc-btn" onclick="calcAppend('4')">4</button>
+                    <button class="calc-btn" onclick="calcAppend('5')">5</button>
+                    <button class="calc-btn" onclick="calcAppend('6')">6</button>
+                    <button class="calc-btn calc-op" onclick="calcOperator('*')">×</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('fact')">n!</button>
+                    
+                    <!-- Row 5 -->
+                    <button class="calc-btn" onclick="calcAppend('1')">1</button>
+                    <button class="calc-btn" onclick="calcAppend('2')">2</button>
+                    <button class="calc-btn" onclick="calcAppend('3')">3</button>
+                    <button class="calc-btn calc-op" onclick="calcOperator('-')">−</button>
+                    <button class="calc-btn calc-fn" onclick="calcFunction('pow')">x^y</button>
+                    
+                    <!-- Row 6 -->
+                    <button class="calc-btn" onclick="calcAppend('0')">0</button>
+                    <button class="calc-btn" onclick="calcAppend('.')">.</button>
+                    <button class="calc-btn" onclick="calcAppend('(')">(</button>
+                    <button class="calc-btn" onclick="calcAppend(')')">)</button>
+                    <button class="calc-btn calc-op" onclick="calcOperator('+')">+</button>
+                    
+                    <!-- Row 7: Constants & clear -->
+                    <button class="calc-btn calc-const" onclick="calcAppend('3.14159265359')">π</button>
+                    <button class="calc-btn calc-const" onclick="calcAppend('2.71828182846')">e</button>
+                    <button class="calc-btn calc-clear" onclick="calcClear()">C</button>
+                    <button class="calc-btn calc-clear" onclick="calcBackspace()">⌫</button>
+                    <button class="calc-btn calc-equals" onclick="calcEquals()">=</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Toggle Button -->
+        <button class="calc-toggle-btn" id="calc-toggle-btn" onclick="toggleCalculator()" title="Scientific Calculator">
+            🧮
+        </button>
+
+        <script src="common.js"></script>
+        <script src="exam.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ExamForge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2>📚 ExamForge</h2>
+            <nav>
+                <div class="nav-item active" onclick="showSection('tests')">📝 My Tests</div>
+                <div class="nav-item" onclick="showSection('results')">📊 My Results</div>
+                <div class="nav-item" onclick="showSection('profile')">👤 Profile</div>
+                <div class="nav-item" onclick="showSection('leaderboard')">🏆 Leaderboard</div>
+                <div class="nav-item" onclick="logout()">🚪 Logout</div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="student-info" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="student-photo" id="studentPhoto">
+                        <span class="photo-initial" id="photoInitial">?</span>
+                    </div>
+                    <div style="position: absolute; top: 20px; right: 20px;">
+                        <button onclick="toggleDarkMode()" class="dark-toggle" id="darkToggle">🌙</button>
+                    </div>
+                    <div>
+                        <h2 id="studentName">Loading...</h2>
+                        <p id="studentDetails">Loading...</p>
+                    </div>
+                </div>
+                <div>
+                    <span id="studentClass" class="test-badge badge-week">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Tests Section -->
+            <div id="tests-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Tests</h3>
+                        <div class="value" id="totalTests">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed</h3>
+                        <div class="value" id="completedTests">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Score</h3>
+                        <div class="value" id="avgScore">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Current Week</h3>
+                        <div class="value" id="currentWeek">-</div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">📅 Scheduled Tests</h3>
+                <div id="testsList" class="tests-grid">
+                    <!-- Tests injected here -->
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <h3 class="section-title">📊 My Performance</h3>
+                <div id="resultsList">
+                    <!-- Results injected here -->
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="hidden">
+                <h3 class="section-title">👤 My Profile</h3>
+                <div class="test-card">
+                    <div id="profileDetails"></div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Section -->
+            <div id="leaderboard-section" class="hidden">
+                <h3 class="section-title">🏆 Leaderboard</h3>
+                <div id="leaderboardContent"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

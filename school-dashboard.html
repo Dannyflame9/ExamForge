@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Dashboard - ExamForge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-grid">
+        <aside class="sidebar">
+            <h2>🏫 School Portal</h2>
+            <nav>
+                <div class="nav-item active" onclick="showSchoolSection('overview')">📊 Overview</div>
+                <div class="nav-item" onclick="showSchoolSection('students')">👥 My Students</div>
+                <div class="nav-item" onclick="showSchoolSection('performance')">📈 Performance</div>
+                <div class="nav-item" onclick="showSchoolSection('sync')">🔄 Sync Data</div>
+                <div class="nav-item" onclick="showSchoolSection('profile')">👤 My Profile</div>
+                <div class="nav-item" onclick="logout()">🚪 Logout</div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div>
+                    <h2 id="schoolName">Loading...</h2>
+                    <p style="color: var(--text-light);">School Owner Dashboard</p>
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <div id="school-overview">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <div class="value" id="totalStudents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Tests Taken</h3>
+                        <div class="value" id="totalTests">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Avg Score</h3>
+                        <div class="value" id="avgScore">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pass Rate</h3>
+                        <div class="value" id="passRate">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students -->
+            <div id="school-students" class="hidden">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Search</label>
+                        <input type="text" id="schoolSearch" placeholder="Search students..." oninput="filterSchoolStudents()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select id="schoolFilterClass" onchange="filterSchoolStudents()">
+                            <option value="">All Classes</option>
+                            <option value="SS1">SS1</option>
+                            <option value="SS2">SS2</option>
+                            <option value="SS3">SS3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Tests</th>
+                                <th>Avg Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schoolStudentsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div id="school-performance" class="hidden">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Subject</label>
+                        <select id="schoolPerfSubject" onchange="loadSchoolPerformance()">
+                            <option value="">All Subjects</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select id="schoolPerfClass" onchange="loadSchoolPerformance()">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Test</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schoolPerformanceTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sync -->
+            <div id="school-sync" class="hidden">
+                <h3 class="section-title">🔄 Data Sync Options</h3>
+                
+                <div class="create-form" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Option 1: Import File</h4>
+                    <p style="color: var(--text-light); margin-bottom: 16px;">Receive .json file from Super Admin and import here.</p>
+                    <input type="file" id="schoolImportFile" accept=".json" onchange="handleSchoolImport(event)" style="padding: 12px; border: 2px dashed var(--border); border-radius: 12px; width: 100%; margin-bottom: 12px;">
+                    <button onclick="confirmSchoolImport()" class="btn btn-primary" style="width: auto;">📤 Import Data File</button>
+                </div>
+
+                <div class="create-form">
+                    <h4 style="margin-bottom: 16px; color: var(--primary);">Option 2: Sync Code</h4>
+                    <p style="color: var(--text-light); margin-bottom: 16px;">Enter sync code provided by Super Admin.</p>
+                    <div class="form-group">
+                        <input type="text" id="syncCodeInput" placeholder="Enter sync code (e.g., ABC123XYZ)" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; text-transform: uppercase; letter-spacing: 2px; font-family: monospace; font-size: 18px;">
+                    </div>
+                    <button onclick="syncByCode()" class="btn btn-primary" style="width: auto;">🔄 Sync with Code</button>
+                    <div id="syncResult" style="margin-top: 16px; padding: 16px; border-radius: 8px; display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Owner Profile -->
+            <div id="school-profile" class="hidden">
+                <h3 class="section-title">👤 School Owner Profile</h3>
+                <div class="create-form" style="max-width: 600px;">
+                    <form id="ownerProfileForm" onsubmit="saveOwnerProfile(event)">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="ownerEditName" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="ownerEditUsername" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin: 24px 0;">
+                            <h4 style="margin-bottom: 16px; color: var(--primary);">🔐 Change Password</h4>
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="ownerCurrentPassword" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password (leave blank to keep)</label>
+                                <input type="password" id="ownerNewPassword" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentOwner = null;
+        let currentSchool = null;
+        let pendingImport = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const stored = sessionStorage.getItem('schoolOwner');
+            if (!stored) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentOwner = JSON.parse(stored);
+            
+            const schools = JSON.parse(localStorage.getItem('examforge_schools'));
+            currentSchool = schools.find(s => s.id === currentOwner.schoolId);
+            
+            document.getElementById('schoolName').textContent = currentSchool.name;
+            
+            loadSchoolOverview();
+            loadSchoolStudents();
+            loadSchoolPerformance();
+        });
+
+        function showSchoolSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            ['overview', 'students', 'performance', 'sync'].forEach(s => {
+                document.getElementById('school-' + s).classList.add('hidden');
+            });
+            document.getElementById('school-' + section).classList.remove('hidden');
+        }
+
+        function getSchoolData() {
+            const allStudents = JSON.parse(localStorage.getItem('examforge_students'));
+            const allResults = JSON.parse(localStorage.getItem('examforge_results'));
+            const allTests = JSON.parse(localStorage.getItem('examforge_tests'));
+            
+            const students = allStudents.filter(s => s.schoolId === currentOwner.schoolId);
+            const studentIds = students.map(s => s.id);
+            const results = allResults.filter(r => studentIds.includes(r.studentId));
+            const testIds = results.map(r => r.testId);
+            const tests = allTests.filter(t => testIds.includes(t.id));
+            
+            return { students, results, tests };
+        }
+
+        function loadSchoolOverview() {
+            const { students, results } = getSchoolData();
+            
+            const totalTests = results.length;
+            const avgScore = totalTests > 0 
+                ? Math.round(results.reduce((a, b) => a + b.score, 0) / totalTests) 
+                : 0;
+            const passed = results.filter(r => r.score >= 60).length;
+            const passRate = totalTests > 0 ? Math.round((passed / totalTests) * 100) : 0;
+            
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+            document.getElementById('passRate').textContent = passRate + '%';
+        }
+
+        function loadSchoolStudents() {
+            const { students, results } = getSchoolData();
+            const tbody = document.getElementById('schoolStudentsTable');
+            tbody.innerHTML = '';
+            
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No students yet.</td></tr>';
+                return;
+            }
+            
+            students.forEach(student => {
+                const studentResults = results.filter(r => r.studentId === student.id);
+                const avg = studentResults.length > 0 
+                    ? Math.round(studentResults.reduce((a, b) => a + b.score, 0) / studentResults.length) 
+                    : 0;
+                
+                const photo = student.photo 
+                    ? `<img src="${student.photo}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`
+                    : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">${student.name.charAt(0)}</div>`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${photo}</td>
+                        <td><strong>${student.name}</strong></td>
+                        <td>${student.class}</td>
+                        <td>${student.subject}</td>
+                        <td>${studentResults.length}</td>
+                        <td><strong class="${avg >= 60 ? 'text-success' : 'text-danger'}">${avg}%</strong></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterSchoolStudents() {
+            const search = document.getElementById('schoolSearch').value.toLowerCase();
+            const cls = document.getElementById('schoolFilterClass').value;
+            const rows = document.querySelectorAll('#schoolStudentsTable tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 2) return;
+                const name = cells[1].textContent.toLowerCase();
+                const rowClass = cells[2].textContent;
+                const matchName = name.includes(search);
+                const matchClass = !cls || rowClass === cls;
+                row.style.display = matchName && matchClass ? '' : 'none';
+            });
+        }
+
+        function loadSchoolPerformance() {
+            const { results, students, tests } = getSchoolData();
+            const tbody = document.getElementById('schoolPerformanceTable');
+            tbody.innerHTML = '';
+            
+            if (results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">No results yet.</td></tr>';
+                return;
+            }
+            
+            results.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+            
+            results.forEach(r => {
+                const student = students.find(s => s.id === r.studentId);
+                const test = tests.find(t => t.id === r.testId);
+                if (!student || !test) return;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${student.name}</strong></td>
+                        <td>Week ${test.week} - ${test.subject}</td>
+                        <td><strong class="${r.score >= 60 ? 'text-success' : 'text-danger'}">${r.score}%</strong></td>
+                        <td>${new Date(r.completedAt).toLocaleDateString()}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function handleSchoolImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    pendingImport = JSON.parse(e.target.result);
+                    alert(`File loaded! Contains:\n- ${pendingImport.examforge_students?.length || 0} students\n- ${pendingImport.examforge_tests?.length || 0} tests\n- ${pendingImport.examforge_results?.length || 0} results`);
+                } catch (err) {
+                    alert('Invalid file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmSchoolImport() {
+            if (!pendingImport) {
+                alert('Please select a file first!');
+                return;
+            }
+            
+            if (!confirm('This will REPLACE all current data. Continue?')) return;
+            
+            localStorage.setItem('examforge_students', JSON.stringify(pendingImport.examforge_students || []));
+            localStorage.setItem('examforge_tests', JSON.stringify(pendingImport.examforge_tests || []));
+            localStorage.setItem('examforge_results', JSON.stringify(pendingImport.examforge_results || []));
+            
+            alert('✅ Data imported successfully! Refreshing...');
+            location.reload();
+        }
+
+        function syncByCode() {
+            const code = document.getElementById('syncCodeInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('syncResult');
+            
+            if (!code) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.textContent = '❌ Please enter a sync code';
+                return;
+            }
+            
+            // In real implementation, this would call a server API
+            // For demo, we'll simulate with localStorage check
+            const syncStore = JSON.parse(localStorage.getItem('examforge_sync_store') || '{}');
+            const syncData = syncStore[code];
+            
+            if (!syncData) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.innerHTML = '❌ Invalid or expired sync code.<br><small>Ask your Super Admin for a new code.</small>';
+                return;
+            }
+            
+            // Apply sync data
+            localStorage.setItem('examforge_tests', JSON.stringify(syncData.tests || []));
+            
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#d1fae5';
+            resultDiv.style.color = '#065f46';
+            resultDiv.innerHTML = `✅ Sync successful!<br><small>Updated ${syncData.tests?.length || 0} tests.<br>Date: ${new Date(syncData.createdAt).toLocaleString()}</small>`;
+        }
+
+        function saveOwnerProfile(e) {
+            e.preventDefault();
+            const owners = JSON.parse(localStorage.getItem('examforge_school_owners'));
+            const idx = owners.findIndex(o => o.id === currentOwner.id);
+            if (idx === -1) return;
+            
+            const currentPass = document.getElementById('ownerCurrentPassword').value;
+            if (currentPass !== owners[idx].password) {
+                alert('Current password incorrect!');
+                return;
+            }
+            
+            owners[idx].name = document.getElementById('ownerEditName').value.trim();
+            owners[idx].username = document.getElementById('ownerEditUsername').value.trim();
+            
+            const newPass = document.getElementById('ownerNewPassword').value;
+            if (newPass) owners[idx].password = newPass;
+            
+            localStorage.setItem('examforge_school_owners', JSON.stringify(owners));
+            sessionStorage.setItem('schoolOwner', JSON.stringify(owners[idx]));
+            alert('✅ Profile updated!');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('schoolOwner');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

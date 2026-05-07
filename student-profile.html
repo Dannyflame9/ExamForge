@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - ExamForge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <h2>📚 ExamForge</h2>
+            <nav>
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">📝 My Tests</div>
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">📊 My Results</div>
+                <div class="nav-item active">👤 Edit Profile</div>
+                <div class="nav-item" onclick="logout()">🚪 Logout</div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="student-info" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="student-photo" id="headerPhoto">
+                        <span class="photo-initial" id="headerInitial">?</span>
+                    </div>
+                    <div>
+                        <h2 id="studentName">Loading...</h2>
+                        <p id="studentDetails">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="create-form" style="max-width: 600px;">
+                <h3 class="section-title">✏️ Edit My Profile</h3>
+                
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div class="photo-upload" onclick="document.getElementById('editPhoto').click()" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; overflow: hidden;">
+                        <div class="photo-preview" id="editPhotoPreview" style="width: 100%; height: 100%; border-radius: 50%;">
+                            <span class="photo-placeholder" style="font-size: 60px;">📷</span>
+                        </div>
+                        <input type="file" id="editPhoto" accept="image/*" style="display: none;" onchange="handleEditPhoto(event)">
+                    </div>
+                    <p style="color: var(--text-light); font-size: 13px; margin-top: 8px;">Tap to change photo</p>
+                </div>
+
+                <form id="editProfileForm" onsubmit="saveProfile(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="editName" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="editGender" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="editClass" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                                <option value="SS1">SS1</option>
+                                <option value="SS2">SS2</option>
+                                <option value="SS3">SS3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="editSubject" required style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="Economics">Economics</option>
+                        </select>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 20px; border-radius: 12px; margin: 24px 0;">
+                        <h4 style="margin-bottom: 16px; color: var(--primary);">🔐 Change Password</h4>
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="editCurrentPassword" placeholder="Enter current password" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="editNewPassword" placeholder="Enter new password (leave blank to keep current)" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    <button type="button" onclick="window.location.href='dashboard.html'" class="btn btn-secondary" style="margin-left: 10px; width: auto;">Cancel</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentStudent = null;
+        let newPhotoData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const stored = sessionStorage.getItem('currentStudent');
+            if (!stored) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentStudent = JSON.parse(stored);
+            loadProfileData();
+        });
+
+        function loadProfileData() {
+            document.getElementById('studentName').textContent = currentStudent.name;
+            document.getElementById('studentDetails').textContent = `${currentStudent.session} • ${currentStudent.term} • ${currentStudent.subject}`;
+            
+            // Header photo
+            const headerPhoto = document.getElementById('headerPhoto');
+            if (currentStudent.photo) {
+                headerPhoto.innerHTML = `<img src="${currentStudent.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else {
+                document.getElementById('headerInitial').textContent = currentStudent.name.charAt(0).toUpperCase();
+            }
+            
+            // Edit photo preview
+            const editPreview = document.getElementById('editPhotoPreview');
+            if (currentStudent.photo) {
+                editPreview.innerHTML = `<img src="${currentStudent.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+            
+            // Form fields
+            document.getElementById('editName').value = currentStudent.name;
+            document.getElementById('editGender').value = currentStudent.gender;
+            document.getElementById('editClass').value = currentStudent.class;
+            document.getElementById('editSubject').value = currentStudent.subject;
+        }
+
+        function handleEditPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 500 * 1024) {
+                alert('Photo too large! Max 500KB.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                newPhotoData = e.target.result;
+                document.getElementById('editPhotoPreview').innerHTML = `<img src="${newPhotoData}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('editCurrentPassword').value;
+            const newPassword = document.getElementById('editNewPassword').value;
+            
+            // Verify current password if trying to change
+            if (newPassword && currentPassword !== currentStudent.password) {
+                alert('Current password is incorrect!');
+                return;
+            }
+            
+            // Update student data
+            const students = JSON.parse(localStorage.getItem('examforge_students'));
+            const index = students.findIndex(s => s.id === currentStudent.id);
+            
+            if (index === -1) {
+                alert('Student not found!');
+                return;
+            }
+            
+            students[index].name = document.getElementById('editName').value.trim();
+            students[index].gender = document.getElementById('editGender').value;
+            students[index].class = document.getElementById('editClass').value;
+            students[index].subject = document.getElementById('editSubject').value;
+            
+            if (newPassword) {
+                students[index].password = newPassword;
+            }
+            
+            if (newPhotoData) {
+                students[index].photo = newPhotoData;
+            }
+            
+            localStorage.setItem('examforge_students', JSON.stringify(students));
+            sessionStorage.setItem('currentStudent', JSON.stringify(students[index]));
+            
+            alert('✅ Profile updated successfully!');
+            window.location.href = 'dashboard.html';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentStudent');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
